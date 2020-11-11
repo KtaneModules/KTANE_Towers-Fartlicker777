@@ -67,11 +67,11 @@ public class Towers : MonoBehaviour {
           goto Reroll;
       }
       Debug.LogFormat("[Towers #{0}] The puzzle is as follows:", moduleId);
-      Debug.LogFormat("[Towers # {0}] {1}", moduleId, (TowerSizes[0][0] / 10).ToString() + (TowerSizes[0][1] / 10).ToString() + (TowerSizes[0][2] / 10).ToString() + (TowerSizes[0][3] / 10).ToString() + (TowerSizes[0][4] / 10).ToString());
-      Debug.LogFormat("[Towers # {0}] {1}", moduleId, (TowerSizes[1][0] / 10).ToString() + (TowerSizes[1][1] / 10).ToString() + (TowerSizes[1][2] / 10).ToString() + (TowerSizes[1][3] / 10).ToString() + (TowerSizes[1][4] / 10).ToString());
-      Debug.LogFormat("[Towers # {0}] {1}", moduleId, (TowerSizes[2][0] / 10).ToString() + (TowerSizes[2][1] / 10).ToString() + (TowerSizes[2][2] / 10).ToString() + (TowerSizes[2][3] / 10).ToString() + (TowerSizes[2][4] / 10).ToString());
-      Debug.LogFormat("[Towers # {0}] {1}", moduleId, (TowerSizes[3][0] / 10).ToString() + (TowerSizes[3][1] / 10).ToString() + (TowerSizes[3][2] / 10).ToString() + (TowerSizes[3][3] / 10).ToString() + (TowerSizes[3][4] / 10).ToString());
-      Debug.LogFormat("[Towers # {0}] {1}", moduleId, (TowerSizes[4][0] / 10).ToString() + (TowerSizes[4][1] / 10).ToString() + (TowerSizes[4][2] / 10).ToString() + (TowerSizes[4][3] / 10).ToString() + (TowerSizes[4][4] / 10).ToString());
+      Debug.LogFormat("[Towers #{0}] {1}", moduleId, (TowerSizes[0][0] / 10).ToString() + (TowerSizes[0][1] / 10).ToString() + (TowerSizes[0][2] / 10).ToString() + (TowerSizes[0][3] / 10).ToString() + (TowerSizes[0][4] / 10).ToString());
+      Debug.LogFormat("[Towers #{0}] {1}", moduleId, (TowerSizes[1][0] / 10).ToString() + (TowerSizes[1][1] / 10).ToString() + (TowerSizes[1][2] / 10).ToString() + (TowerSizes[1][3] / 10).ToString() + (TowerSizes[1][4] / 10).ToString());
+      Debug.LogFormat("[Towers #{0}] {1}", moduleId, (TowerSizes[2][0] / 10).ToString() + (TowerSizes[2][1] / 10).ToString() + (TowerSizes[2][2] / 10).ToString() + (TowerSizes[2][3] / 10).ToString() + (TowerSizes[2][4] / 10).ToString());
+      Debug.LogFormat("[Towers #{0}] {1}", moduleId, (TowerSizes[3][0] / 10).ToString() + (TowerSizes[3][1] / 10).ToString() + (TowerSizes[3][2] / 10).ToString() + (TowerSizes[3][3] / 10).ToString() + (TowerSizes[3][4] / 10).ToString());
+      Debug.LogFormat("[Towers #{0}] {1}", moduleId, (TowerSizes[4][0] / 10).ToString() + (TowerSizes[4][1] / 10).ToString() + (TowerSizes[4][2] / 10).ToString() + (TowerSizes[4][3] / 10).ToString() + (TowerSizes[4][4] / 10).ToString());
       for (int x = 0; x < 5; x++) {
         for (int i = 0; i < 5; i++) {
           if (TowerSizes[x][i] > TallestTower) {
@@ -154,11 +154,27 @@ public class Towers : MonoBehaviour {
         }
       }
       int Check = 0;
-      for (int i = 0; i < 25; i++)
-        if (Cubes[i * 5 + TowerPlacements[i]].gameObject.activeSelf)
-          Check++;
-      if (Check == 75)
-        SolveChecker();
+      for (int i = 0; i < 5; i++)
+        Check += TowerChecking[i];
+      if (Check != 15)
+        return;
+      for (int i = 5; i < 10; i++)
+        Check += TowerChecking[i];
+      if (Check != 30)
+        return;
+      for (int i = 10; i < 15; i++)
+        Check += TowerChecking[i];
+      if (Check != 45)
+        return;
+      for (int i = 15; i < 20; i++)
+        Check += TowerChecking[i];
+      if (Check != 60)
+        return;
+      for (int i = 20; i < 25; i++)
+        Check += TowerChecking[i];
+      if (Check != 75)
+        return;
+      SolveChecker();
     }
 
     void SwitchFlip () {

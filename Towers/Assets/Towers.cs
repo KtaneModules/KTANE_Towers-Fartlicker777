@@ -55,9 +55,9 @@ public class Towers : MonoBehaviour {
       for (int i = 0; i < Cubes.Length; i++)
         Cubes[i].gameObject.SetActive(false);
       for (int i = 0; i < 25; i++) {
-        Cubes[i * 5].gameObject.SetActive(true);
-        TowerPlacements[i] = 1;
-        TowerChecking[i] = 1;
+        //Cubes[i * 5].gameObject.SetActive(true);
+        //TowerPlacements[i] = 1;
+        //TowerChecking[i] = 1;
       }
       Reroll:
       for (int i = 0; i < 5; i++)
@@ -141,39 +141,52 @@ public class Towers : MonoBehaviour {
               TowerChecking[i] = 5;
           }
           else {
-            if (TowerPlacements[i] != 1 && !Cubes[i * 5 + TowerPlacements[i]].gameObject.activeSelf)
+            if (TowerPlacements[i] == 0)
+              return;
+            if (TowerPlacements[i] != 0 && !Cubes[i * 5 + TowerPlacements[i]].gameObject.activeSelf)
               TowerPlacements[i]--;
             Cubes[i * 5 + TowerPlacements[i]].gameObject.SetActive(false);
-            if (TowerPlacements[i] != 1) {
-              TowerPlacements[i]--;
+            if (TowerPlacements[i] != 0)
               TowerChecking[i] = TowerPlacements[i];
-            }
-            else
-              TowerChecking[i] = 1;
           }
         }
       }
       int Check = 0;
       for (int i = 0; i < 5; i++)
         Check += TowerChecking[i];
-      if (Check != 15)
+      if (Check != 15) {
+        //Debug.Log(Check);
+        //Debug.Log("1st");
         return;
+      }
       for (int i = 5; i < 10; i++)
         Check += TowerChecking[i];
-      if (Check != 30)
+      if (Check != 30) {
+        //Debug.Log(Check);
+        //Debug.Log("2nd");
         return;
+      }
       for (int i = 10; i < 15; i++)
         Check += TowerChecking[i];
-      if (Check != 45)
+      if (Check != 45) {
+        //Debug.Log(Check);
+        //Debug.Log("3rd");
         return;
+      }
       for (int i = 15; i < 20; i++)
         Check += TowerChecking[i];
-      if (Check != 60)
+      if (Check != 60) {
+        //Debug.Log(Check);
+        //Debug.Log("4th");
         return;
+      }
       for (int i = 20; i < 25; i++)
         Check += TowerChecking[i];
-      if (Check != 75)
+      if (Check != 75) {
+        //Debug.Log(Check);
+        //Debug.Log("5th");
         return;
+      }
       SolveChecker();
     }
 
@@ -287,9 +300,11 @@ public class Towers : MonoBehaviour {
     IEnumerator SolveAnimation () {
       for (int i = 0; i < 125; i++) {
         for (int j = 0; j < 125; j++)
-          Cubes[i].transform.Translate(0.0f, -0.0005f, 0.0f);
+          Cubes[j].transform.Translate(0.0f, -0.0005f, 0.0f);
         yield return new WaitForSeconds(.01f);
       }
+      for (int i = 0; i < 125; i++)
+        Cubes[i].gameObject.SetActive(false);
     }
 
     #pragma warning disable 414

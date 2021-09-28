@@ -206,10 +206,16 @@ public class Towers : MonoBehaviour {
       if (Adding) {
          StartCoroutine(toggleSwitch(0, 30));
          Audio.PlaySoundAtTransform("Switch1", Switch.transform);
+         if (moduleSolved) {
+            StartCoroutine(RiseAnimation());
+         }
       }
       else {
          StartCoroutine(toggleSwitch(30, 0));
          Audio.PlaySoundAtTransform("Switch2", Switch.transform);
+         if (moduleSolved) {
+            StartCoroutine(FallAnimation());
+         }
       }
    }
 
@@ -302,19 +308,24 @@ public class Towers : MonoBehaviour {
       }
 
       GetComponent<KMBombModule>().HandlePass();
-      StartCoroutine(SolveAnimation());
       moduleSolved = true;
    }
 
-   IEnumerator SolveAnimation () {
+   IEnumerator FallAnimation () {
       for (int i = 0; i < 125; i++) {
          for (int j = 0; j < 125; j++) {
             Cubes[j].transform.Translate(0.0f, -0.0005f, 0.0f);
          }
          yield return new WaitForSeconds(.01f);
       }
+   }
+
+   IEnumerator RiseAnimation () {
       for (int i = 0; i < 125; i++) {
-         Cubes[i].gameObject.SetActive(false);
+         for (int j = 0; j < 125; j++) {
+            Cubes[j].transform.Translate(0.0f, 0.0005f, 0.0f);
+         }
+         yield return new WaitForSeconds(.01f);
       }
    }
 
@@ -325,15 +336,21 @@ public class Towers : MonoBehaviour {
    IEnumerator ProcessTwitchCommand (string Command) {
       string[] Parameters = Command.Trim().ToUpper().Split(' ');
       string[] Coordinates = { "A1", "B1", "C1", "D1", "E1", "A2", "B2", "C2", "D2", "E2", "A3", "B3", "C3", "D3", "E3", "A4", "B4", "C4", "D4", "E4", "A5", "B5", "C5", "D5", "E5"};
+      bool hasRan = false;
       yield return null;
       for (int i = 0; i < Parameters.Length; i++) {
          if (Parameters[i] == "SWITCH") {
             Switch.OnInteract();
+            hasRan = true;
          }
          for (int j = 0; j < 25; j++) {
             if (Parameters[i] == Coordinates[j]) {
                Buttons[j].OnInteract();
             }
+            hasRan = true;
+         }
+         if (hasRan) {
+            yield break;
          }
          if (!Coordinates.Contains(Parameters[i])) {
             yield return "sendtochaterror I don't understand!";

@@ -5,6 +5,8 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using UnityEngine;
 using KModkit;
+using Rnd = UnityEngine.Random;
+//using ExGrid = TowersGenerations.TowersForGenerate;
 
 public class Towers : MonoBehaviour {
 
@@ -23,8 +25,6 @@ public class Towers : MonoBehaviour {
    public GameObject[] TheHighlights;
 
    public Transform TheSwitchToFlip;
-
-   int Resets;
 
    static int moduleIdCounter = 1;
    int moduleId;
@@ -61,28 +61,24 @@ public class Towers : MonoBehaviour {
       for (int i = 0; i < Cubes.Length; i++) {
          Cubes[i].gameObject.SetActive(false);
       }
-      //for (int i = 0; i < 25; i++) {
-         //Cubes[i * 5].gameObject.SetActive(true);
-         //TowerPlacements[i] = 1;
-         //TowerChecking[i] = 1;
-      //}
-      Reroll:
-      for (int i = 0; i < 5; i++) {
-         TowerSizes[i].Shuffle();
+
+      TowersGenerations.TowersForGenerate Board = new TowersGenerations.TowersForGenerate(5);
+      for (int i = 0; i < 15; i++) {
+         Board.Permutate(Rnd.Range(0, 2) == 1);
       }
       for (int i = 0; i < 5; i++) {
-         if (TowerSizes[0][i] + TowerSizes[1][i] + TowerSizes[2][i] + TowerSizes[3][i] + TowerSizes[4][i] != 178) {
-            Resets++;
-            goto Reroll;
+         for (int j = 0; j < 5; j++) {
+            TowerSizes[i][j] = Board.GetField(i, j);
          }
       }
-      Debug.LogFormat("[Towers #{0}] A puzzle was generated in {1} attempt(s):", moduleId, Resets);
+
       Debug.LogFormat("[Towers #{0}] The puzzle is as follows:", moduleId);
-      Debug.LogFormat("[Towers #{0}] {1}", moduleId, (TowerSizes[0][0] / 10).ToString() + (TowerSizes[0][1] / 10).ToString() + (TowerSizes[0][2] / 10).ToString() + (TowerSizes[0][3] / 10).ToString() + (TowerSizes[0][4] / 10).ToString());
-      Debug.LogFormat("[Towers #{0}] {1}", moduleId, (TowerSizes[1][0] / 10).ToString() + (TowerSizes[1][1] / 10).ToString() + (TowerSizes[1][2] / 10).ToString() + (TowerSizes[1][3] / 10).ToString() + (TowerSizes[1][4] / 10).ToString());
-      Debug.LogFormat("[Towers #{0}] {1}", moduleId, (TowerSizes[2][0] / 10).ToString() + (TowerSizes[2][1] / 10).ToString() + (TowerSizes[2][2] / 10).ToString() + (TowerSizes[2][3] / 10).ToString() + (TowerSizes[2][4] / 10).ToString());
-      Debug.LogFormat("[Towers #{0}] {1}", moduleId, (TowerSizes[3][0] / 10).ToString() + (TowerSizes[3][1] / 10).ToString() + (TowerSizes[3][2] / 10).ToString() + (TowerSizes[3][3] / 10).ToString() + (TowerSizes[3][4] / 10).ToString());
-      Debug.LogFormat("[Towers #{0}] {1}", moduleId, (TowerSizes[4][0] / 10).ToString() + (TowerSizes[4][1] / 10).ToString() + (TowerSizes[4][2] / 10).ToString() + (TowerSizes[4][3] / 10).ToString() + (TowerSizes[4][4] / 10).ToString());
+      Debug.LogFormat("[Towers #{0}] {1} {2} {3} {4} {5}", moduleId, TowerSizes[0][0], TowerSizes[0][1], TowerSizes[0][2], TowerSizes[0][3], TowerSizes[0][4]);
+      Debug.LogFormat("[Towers #{0}] {1} {2} {3} {4} {5}", moduleId, TowerSizes[1][0], TowerSizes[1][1], TowerSizes[1][2], TowerSizes[1][3], TowerSizes[1][4]);
+      Debug.LogFormat("[Towers #{0}] {1} {2} {3} {4} {5}", moduleId, TowerSizes[2][0], TowerSizes[2][1], TowerSizes[2][2], TowerSizes[2][3], TowerSizes[2][4]);
+      Debug.LogFormat("[Towers #{0}] {1} {2} {3} {4} {5}", moduleId, TowerSizes[3][0], TowerSizes[3][1], TowerSizes[3][2], TowerSizes[3][3], TowerSizes[3][4]);
+      Debug.LogFormat("[Towers #{0}] {1} {2} {3} {4} {5}", moduleId, TowerSizes[4][0], TowerSizes[4][1], TowerSizes[4][2], TowerSizes[4][3], TowerSizes[4][4]);
+
       for (int x = 0; x < 5; x++) {
          for (int i = 0; i < 5; i++) {
             if (TowerSizes[x][i] > TallestTower) {
@@ -138,6 +134,9 @@ public class Towers : MonoBehaviour {
 
    void ButtonPress (KMSelectable Button) {
       Audio.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.ButtonPress, Button.transform);
+      if (moduleSolved) {
+         return;
+      }
       for (int i = 0; i < 25; i++) {
          if (Button == Buttons[i]) {
             if (Adding) {
@@ -308,6 +307,9 @@ public class Towers : MonoBehaviour {
       }
 
       GetComponent<KMBombModule>().HandlePass();
+      if (!Adding) {
+         StartCoroutine(FallAnimation());
+      }
       moduleSolved = true;
    }
 
@@ -336,24 +338,21 @@ public class Towers : MonoBehaviour {
    IEnumerator ProcessTwitchCommand (string Command) {
       string[] Parameters = Command.Trim().ToUpper().Split(' ');
       string[] Coordinates = { "A1", "B1", "C1", "D1", "E1", "A2", "B2", "C2", "D2", "E2", "A3", "B3", "C3", "D3", "E3", "A4", "B4", "C4", "D4", "E4", "A5", "B5", "C5", "D5", "E5"};
-      bool hasRan = false;
       yield return null;
+      for (int i = 0; i < Parameters.Length; i++) {
+         if (Parameters[i] != "SWITCH" && !Coordinates.Contains(Parameters[i])) {
+            yield return "sendtochaterror I don't understand!";
+            yield break;
+         }
+      }
       for (int i = 0; i < Parameters.Length; i++) {
          if (Parameters[i] == "SWITCH") {
             Switch.OnInteract();
-            hasRan = true;
          }
          for (int j = 0; j < 25; j++) {
             if (Parameters[i] == Coordinates[j]) {
                Buttons[j].OnInteract();
             }
-            hasRan = true;
-         }
-         if (hasRan) {
-            yield break;
-         }
-         if (!Coordinates.Contains(Parameters[i])) {
-            yield return "sendtochaterror I don't understand!";
          }
          yield return new WaitForSecondsRealtime(.1f);
       }
